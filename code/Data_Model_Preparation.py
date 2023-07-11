@@ -3,7 +3,7 @@ import mlflow
 
 # COMMAND ----------
 
-mlflow.set_experiment("untuned_random_forest")
+mlflow.set_experiment("/Experiments/untuned_random_forest")
 
 # COMMAND ----------
 
