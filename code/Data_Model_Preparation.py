@@ -1,5 +1,4 @@
 # Databricks notebook source
-mlflow.set_experiment("untuned_random_forest")
 def read(database_name="MLOPS", schema_name="RAW_DATA", table_name=str):
     
     options = {
