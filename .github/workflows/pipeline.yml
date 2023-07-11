@@ -1,0 +1,38 @@
+name: Train and Deploy to Azure data bricks workspace
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main  # Trigger the workflow on pushes to the 'main' branch
+
+jobs:
+  run-databricks-notebook:
+   runs-on: ubuntu-latest
+
+   steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Set up Azure CLI
+        uses: pietrobolcato/install-azure-cli-action@v1.0.1
+        
+        
+      - name: Azure CLI Login
+        id: azure_login
+        run: |
+          az login --service-principal --tenant ${{ secrets.AZURE_TENANT_ID }} --username ${{ secrets.AZURE_CLIENT_ID }} --password ${{ secrets.AZURE_CLIENT_SECRET }}
+
+     
+      - name: Install Azure CLI Databricks extension
+        run: az extension add --name databricks
+        
+      
+      - name: Trigger notebook in workspace
+        uses: databricks/run-notebook@v0
+        with:
+          local-notebook-path: code/Data_Model_Preparation.py
+          databricks-host: https://adb-7827998753449886.6.azuredatabricks.net/
+          databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
+          git-commit: ${{ github.event.push.head.sha }}
+          existing-cluster-id: 0711-102228-3zobddn4
