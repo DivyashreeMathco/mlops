@@ -17,10 +17,9 @@ def read(database_name="MLOPS", schema_name="RAW_DATA", table_name=str):
         "sfSchema": schema_name,
         "sfWarehouse": "COMPUTE_WH"}
     
-    df1 = spark.read.format("snowflake").options(**options).option("query", f"select * from {table_name};").load()
-    
-    #df2 = spark.read.format("snowflake").options(**options).option("query", f"select * from {table_name};").load()
-    return df1
+    df = spark.read.format("snowflake").options(**options).option("query", f"select * from {table_name};").load()
+
+    return df
 
 
 # def snowflake(read):
@@ -265,40 +264,6 @@ display(inference)
 
 import os
 os.environ["DATABRICKS_TOKEN"] = "dapic3c040da4c38bfd698ba3d34996babde-3"
-
-# COMMAND ----------
-
-import os
-import requests
-import numpy as np
-import pandas as pd
-import json
-
-def create_tf_serving_json(data):
-  return {'inputs': {name: data[name].tolist() for name in data.keys()} if isinstance(data, dict) else data.tolist()}
-
-def score_model(dataset):
-  url = 'https://adb-7827998753449886.6.azuredatabricks.net/model/quality_prediction/1/invocations'
-  headers = {'Authorization': f'Bearer {os.environ.get("DATABRICKS_TOKEN")}', 'Content-Type': 'application/json'}
-  #ds_dict = dataset.to_dict(orient='split') if isinstance(dataset, pd.DataFrame) else create_tf_serving_json(dataset)
-  ds_dict = {"dataframe_split": dataset.to_dict(orient='split')} if isinstance(dataset, pd.DataFrame) else create_tf_serving_json(dataset)
-  data_json = json.dumps(ds_dict, allow_nan=True)
-  response = requests.request(method='POST', headers=headers, url=url, data=data_json)
-  if response.status_code != 200:
-    raise Exception(f'Request failed with status {response.status_code}, {response.text}')
-  return response.json()
-
-# COMMAND ----------
-
-num_predictions = 5
-served_predictions = score_model(X_test[:num_predictions])
-model_evaluations = model.predict(X_test[:num_predictions])
-served_predictions = np.array(list(served_predictions.values()))
-# Compare the results from the deployed model and the trained model
-pd.DataFrame({
-  "Model Prediction": model_evaluations,
-  "Served Model Prediction": served_predictions.flatten()
-})
 
 # COMMAND ----------
 
