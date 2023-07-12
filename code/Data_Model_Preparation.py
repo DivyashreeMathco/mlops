@@ -1,4 +1,8 @@
 # Databricks notebook source
+import mlflow
+
+# COMMAND ----------
+
 mlflow.set_experiment("/Users/msdr000@gmail.com/untuned_random_forest")
 
 # COMMAND ----------
